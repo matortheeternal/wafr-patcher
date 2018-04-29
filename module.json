@@ -1,0 +1,12 @@
+{
+  "id": "wafrPatcher",
+  "name": "WAFR Patcher",
+  "author": "Mator",
+  "version": "1.0.0",
+  "released": "5/1/2018",
+  "updated": "5/1/2018",
+  "description": "A zEdit patcher for applying WAFR (or Weapon AF) changes to other mods.",
+  "requires": ["unifiedPatchingFramework"],
+  "moduleLoader": "UPF",
+  "canHotLoad": true
+}
