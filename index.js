@@ -9,12 +9,13 @@ const levelShifts = {
 };
 
 let fixLevel = function(entry, material, name, log) {
-    let level = xelib.GetIntValue(entry, 'LVLO\\Level'),
+    let level = xelib.GetUIntValue(entry, 'LVLO\\Level'),
         shift = levelShifts[material];
     if (level === 25) shift--;
     if (level === 11) shift++;
-    log(`  Changing level for entry ${name} from ${level} to ${level + shift}`);
-    xelib.SetIntValue(entry, 'LVLO\\Level', level + shift);
+    let newLevel = Math.max(level + shift, 1);
+    log(`  Changing level for entry ${name} from ${level} to ${newLevel}`);
+    xelib.SetUIntValue(entry, 'LVLO\\Level', newLevel);
 };
 
 let getMaterialEntry = function(equipment, name) {
@@ -25,6 +26,8 @@ let getMaterialEntry = function(equipment, name) {
 };
 
 let getMaterial = function(rec) {
+    if (!xelib.HasElement(rec, 'KWDA') ||
+        !xelib.HasElement(rec, 'EITM')) return;
     let keywords = xelib.GetElements(rec, 'KWDA').map(e => xelib.GetValue(e));
     for (let keyword of keywords) {
         let match = keyword.match(/(Armor|Weap)Material(\S+)/);
@@ -75,10 +78,11 @@ registerPatcher({
             if (!excludedFiles.includes(filenames[i])) continue;
             filenames.splice(i, 1);
         }
+        return filenames;
     },
     execute: {
         initialize: function(patch, helpers, settings, locals) {
-            let equipment = helpers.loadRecords('WEAP,ARMO');
+            let equipment = xelib.GetRecords(0, 'WEAP,ARMO');
             locals.equipment = {};
             equipment.forEach(function(rec) {
                 if (!xelib.IsMaster(rec)) return;
